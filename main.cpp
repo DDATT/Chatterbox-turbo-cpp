@@ -3,14 +3,21 @@
 #include <string>
 #include "wavfile.hpp"
 #include "chatterbox.h"
-
+#include "bpe_tokenizer.hpp"
 int main(){
+    BPETokenizer tokenizer;
+    std::cout << "\nLoading tokenizer from tokenizer.json..." << std::endl;
+    if (!tokenizer.loadFromFile("assets/tokenizer.json")) {
+        std::cerr << "Failed to load tokenizer!" << std::endl;
+        return 1;
+    }
+    
     ChatterBox chatterbox("ModelDir", false);
     chatterbox.LoadStyle("StyleDir");
-    std::string text = "Hello, welcome to the world of C++ programming!";
-    // std::vector<int64_t> inputIds = chatterbox.TokenizeText(text);
-    // Predefined tokenized input for testing because I haven't implement huggingface tokenizer yet
-    std::vector<int64_t> inputIds{5812, 11, 326, 338, 20105, 0, 220, 50274, 21039, 6949, 11, 703, 389, 345, 1804, 1909, 30, 50256, 50256};
+
+    std::string text = "Hello, welcome to my world!";
+
+    std::vector<int64_t> inputIds = tokenizer.encode(text, true);
 
     std::vector<int64_t> generatedTokens = chatterbox.SynthesizeSpeechTokens(inputIds);
     std::vector<int16_t> audioBuffer = chatterbox.synthesizeSpeech(generatedTokens);
